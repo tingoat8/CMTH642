@@ -1,0 +1,11 @@
+str(mtcars)
+data <- data.frame(mtcars[,c("mpg","disp","hp","wt")])
+attach(data)
+plot(data)##Show how variables relates to each other(gives pairwise combo)
+View(head(data))
+model1 <- lm(mpg ~ disp + hp, data = data)
+summary(model1)
+model2 <- lm(mpg ~ disp + hp +wt, data = data)
+anova(model1, model2)
+
+predict(model1, data.frame(hp=100, disp = 300), interval ="prediction")

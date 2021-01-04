@@ -1,0 +1,86 @@
+---
+title: "Assignment3"
+author: "Saumitra Mazumder"
+date: "June 16, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Question 1
+```{r, echo=FALSE}
+wine<-read.csv(file = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv",header=T, sep=";")
+str(wine)
+head(wine)
+which(is.na(wine))
+```
+We see that there are no missing data 
+
+
+Question 2
+```{r, echo=FALSE}
+notquality <- data.frame(wine[,-12]) #everything except quality
+str(notquality)
+correlationNotQuality <- data.frame(cor(notquality)) ##Correlation between each 
+correlationNotQuality ## cross correlation coefficients
+
+```
+
+Question 3
+```{r, echo=FALSE}
+distribution <-round(prop.table(table(wine$quality)), digits = 5) #Give probability distribution of quality
+plot(distribution, type = "h")
+```
+
+Question 4
+```{r, echo=FALSE}
+rating <-ifelse(wine$quality < 5, 'low', ifelse(wine$quality < 7, 'medium', 'high'))
+wine$rating <-factor(rating)
+head(wine)
+distribution <-round(prop.table(table(wine$rating)), digits = 5) #Give probability distribution of ratings
+plot(distribution, type = "h")
+
+```
+
+
+Question 5
+```{r, echo=FALSE}
+normalized <- function(x) {
+   return ((x - min(x)) / (max(x) - min(x))) }
+wine_n <- as.data.frame(lapply(wine[1:11], normalized)) #normalized data 
+summary(wine_n) #check to see if function normalized the data
+
+```
+
+Question 6
+```{r, echo=FALSE}
+#setting the sample size
+sSize1 <- floor(0.7 * nrow(wine_n))
+#creating the training group 70/30 rule
+wineTrain <- wine_n[1:sSize1,]
+wineTest <- wine_n[(sSize1+1):length(wine_n),]
+
+#Our target variable is 'quality' 
+wineTrainingQuality <- as.factor(wine[1:sSize1,13])
+wineTestingQuality <- as.factor(wine[(sSize1+1):length(wine_n),13])
+```
+
+Question 7
+```{r, echo=FALSE}
+library('class')
+wineTestPredictor <- knn(train = wineTrain, test = wineTest, cl = wineTrainingQuality , k=7) #choose k small
+```
+
+Question 8
+```{r, echo=FALSE}
+#Now we have to check accuracy
+library('gmodels')
+CrossTable(x = wineTestingQuality, y = wineTestPredictor, prop.chisq = FALSE)
+```
+Test data consists of 3419 observations
+483 cases predicted accurately as high quality
+10 cases predicted accurately as low quality
+2315 cases predicted accurately as medium quality
+total accuracy is 483 +10 + 2315/3419 = 0.82
